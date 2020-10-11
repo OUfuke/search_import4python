@@ -1,8 +1,10 @@
 import re
+import os
 import glob
 import pathlib
 
 import_list = []
+file_dir_name = set()
 
 
 def remove_head_space(line):
@@ -44,13 +46,17 @@ def add_package_list(packages):
             import_list.append(master_slave)
 
 
-def show_tree(import_list=import_list):
+def show_tree(import_list=import_list, remove_origin=True):
     """
     Tree view from import_list.
+    If you want to get original package, remove_origin=False.
     """
     import_list = sorted(import_list)
     stock = []
     for package in import_list:
+        if remove_origin:
+            if package[-1] in file_dir_name:
+                continue
         num = len(set(stock) & set(package))
         for i in range(num, len(package)):
             if i > 0:
@@ -63,11 +69,16 @@ def files_list(path):
     """
     Get python file in folder.
     """
+    global file_dir_name
     if pathlib.Path(path).is_absolute():
         path = str(pathlib.Path(path))
     else:
         path = str(pathlib.Path(path).resolve())
     python_file_list = glob.glob(path + "/**/*.py", recursive=True)
+    file_dir_name |= set(
+        map(os.path.basename, glob.glob(path + "/**/", recursive=True)))
+    for filepath in python_file_list:
+        file_dir_name.add(os.path.splitext(os.path.basename(filepath))[0])
     return python_file_list
 
 

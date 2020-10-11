@@ -8,3 +8,7 @@ Run.
 ```
 python search_import.py
 ```
+If you want to get original package. 
+```
+show_tree(remove_origin=False.)
+```
